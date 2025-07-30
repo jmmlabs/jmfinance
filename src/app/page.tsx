@@ -1,103 +1,377 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { 
+  DollarSign, 
+  TrendingUp, 
+  PieChart, 
+  Wallet, 
+  Lock, 
+  Unlock, 
+  Coins, 
+  Building2,
+  Car,
+  Bitcoin,
+  Ethereum,
+  BarChart3,
+  Eye,
+  EyeOff
+} from "lucide-react";
+import { 
+  portfolioData, 
+  totalPortfolioValue, 
+  assetTypeBreakdown, 
+  liquidityBreakdown, 
+  stageBreakdown 
+} from "@/data/portfolio";
+import { useState } from "react";
+import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+
+const COLORS = {
+  'USD': '#10B981',
+  'CRYPTO': '#F59E0B',
+  'STOCKS': '#3B82F6',
+  'PRIVATE REAL ESTATE': '#8B5CF6',
+  'PHYSICAL ASSET': '#6B7280',
+  'BONDS': '#EF4444',
+  'LIQUID': '#10B981',
+  'ILLIQUID': '#F59E0B',
+  'UNLOCKED': '#10B981',
+  'LOCKED': '#F59E0B',
+  'RETIREMENT': '#8B5CF6'
+};
+
+export default function Dashboard() {
+  const [showValues, setShowValues] = useState(true);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const formatPercentage = (value: number) => {
+    return `${value.toFixed(1)}%`;
+  };
+
+  const assetTypeData = Object.entries(assetTypeBreakdown).map(([type, value]) => ({
+    name: type,
+    value,
+    percentage: (value / totalPortfolioValue) * 100
+  }));
+
+  const liquidityData = Object.entries(liquidityBreakdown).map(([liquidity, value]) => ({
+    name: liquidity,
+    value,
+    percentage: (value / totalPortfolioValue) * 100
+  }));
+
+  const stageData = Object.entries(stageBreakdown).map(([stage, value]) => ({
+    name: stage,
+    value,
+    percentage: (value / totalPortfolioValue) * 100
+  }));
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Portfolio Dashboard</h1>
+            <p className="text-muted-foreground">Your financial overview</p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowValues(!showValues)}
+            className="flex items-center gap-2"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {showValues ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showValues ? 'Hide Values' : 'Show Values'}
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Total Portfolio Value */}
+        <Card className="border-0 bg-gradient-to-r from-primary/10 to-primary/5">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Portfolio Value</p>
+                <p className="text-4xl font-bold text-foreground">
+                  {showValues ? formatCurrency(totalPortfolioValue) : '••••••••'}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Last updated: {portfolioData[0]?.updateDate}
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Assets</p>
+                  <p className="text-2xl font-bold text-foreground">{portfolioData.length}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Accounts</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {new Set(portfolioData.map(asset => asset.accountName)).size}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Liquid Assets</CardTitle>
+              <Wallet className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {showValues ? formatCurrency(liquidityBreakdown.LIQUID || 0) : '••••••'}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {formatPercentage(((liquidityBreakdown.LIQUID || 0) / totalPortfolioValue) * 100)} of portfolio
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Crypto Holdings</CardTitle>
+              <Coins className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {showValues ? formatCurrency(assetTypeBreakdown.CRYPTO || 0) : '••••••'}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {formatPercentage(((assetTypeBreakdown.CRYPTO || 0) / totalPortfolioValue) * 100)} of portfolio
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Real Estate</CardTitle>
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {showValues ? formatCurrency(assetTypeBreakdown['PRIVATE REAL ESTATE'] || 0) : '••••••'}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {formatPercentage(((assetTypeBreakdown['PRIVATE REAL ESTATE'] || 0) / totalPortfolioValue) * 100)} of portfolio
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Stocks</CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {showValues ? formatCurrency(assetTypeBreakdown.STOCKS || 0) : '••••••'}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {formatPercentage(((assetTypeBreakdown.STOCKS || 0) / totalPortfolioValue) * 100)} of portfolio
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts and Tables */}
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="allocation">Allocation</TabsTrigger>
+            <TabsTrigger value="liquidity">Liquidity</TabsTrigger>
+            <TabsTrigger value="assets">Assets</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <PieChart className="h-5 w-5" />
+                    Asset Type Breakdown
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={assetTypeData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percentage }) => `${name} ${percentage.toFixed(1)}%`}
+                        >
+                          {assetTypeData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#8884d8'} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Liquidity vs Illiquidity
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Liquid Assets</span>
+                        <span>{formatCurrency(liquidityBreakdown.LIQUID || 0)}</span>
+                      </div>
+                      <Progress 
+                        value={((liquidityBreakdown.LIQUID || 0) / totalPortfolioValue) * 100} 
+                        className="h-2"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Illiquid Assets</span>
+                        <span>{formatCurrency(liquidityBreakdown.ILLIQUID || 0)}</span>
+                      </div>
+                      <Progress 
+                        value={((liquidityBreakdown.ILLIQUID || 0) / totalPortfolioValue) * 100} 
+                        className="h-2"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="allocation" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Asset Allocation</CardTitle>
+                <CardDescription>Detailed breakdown of your portfolio by asset type</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={assetTypeData}>
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                      <Bar dataKey="value" fill="#8884d8" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="liquidity" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Liquidity Analysis</CardTitle>
+                <CardDescription>Breakdown of liquid vs illiquid assets</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart>
+                      <Pie
+                        data={liquidityData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percentage }) => `${name} ${percentage.toFixed(1)}%`}
+                      >
+                        {liquidityData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#8884d8'} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="assets" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>All Assets</CardTitle>
+                <CardDescription>Complete list of your portfolio assets</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Asset</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Value</TableHead>
+                      <TableHead>% of Portfolio</TableHead>
+                      <TableHead>Liquidity</TableHead>
+                      <TableHead>Stage</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {portfolioData.map((asset, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">
+                          <div>
+                            <div>{asset.actualAsset}</div>
+                            <div className="text-sm text-muted-foreground">{asset.accountName}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{asset.type}</Badge>
+                        </TableCell>
+                        <TableCell className="font-mono">
+                          {showValues ? formatCurrency(asset.amount) : '••••••'}
+                        </TableCell>
+                        <TableCell>{formatPercentage(asset.percentageOfTotal)}</TableCell>
+                        <TableCell>
+                          <Badge variant={asset.liquidity === 'LIQUID' ? 'default' : 'secondary'}>
+                            {asset.liquidity}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{asset.stage}</Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
