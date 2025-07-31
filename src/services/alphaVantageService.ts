@@ -8,7 +8,8 @@ import {
   PriceCacheEntry,
   ApiError
 } from '@/types/api';
-import { apiUsageTracker } from './apiUsageTracker';
+// Dynamic import to avoid SSR issues
+let apiUsageTracker: any = null;
 
 // Cache for storing price data
 const priceCache = new Map<string, PriceCacheEntry>();
@@ -108,15 +109,21 @@ class AlphaVantageService {
         if (cachedData) {
           console.log(`Using cached data for ${symbol}`);
           
-          // Record cache hit (no API call made)
-          apiUsageTracker.recordCall({
-            provider: 'alphavantage',
-            endpoint: 'GLOBAL_QUOTE',
-            symbol: symbol,
-            success: true,
-            fromCache: true,
-            cost: 0
-          });
+          // Record cache hit (no API call made) - client side only
+          if (typeof window !== 'undefined') {
+            if (!apiUsageTracker) {
+              const { apiUsageTracker: tracker } = await import('./apiUsageTracker');
+              apiUsageTracker = tracker;
+            }
+            apiUsageTracker.recordCall({
+              provider: 'alphavantage',
+              endpoint: 'GLOBAL_QUOTE',
+              symbol: symbol,
+              success: true,
+              fromCache: true,
+              cost: 0
+            });
+          }
           
           return {
             success: true,
@@ -159,15 +166,21 @@ class AlphaVantageService {
       const processedData = this.processQuoteResponse(response.data);
       this.cachePrice(symbol, processedData);
 
-      // Record successful API call
-      apiUsageTracker.recordCall({
-        provider: 'alphavantage',
-        endpoint: 'GLOBAL_QUOTE',
-        symbol: symbol,
-        success: true,
-        fromCache: false,
-        cost: 1
-      });
+      // Record successful API call - client side only
+      if (typeof window !== 'undefined') {
+        if (!apiUsageTracker) {
+          const { apiUsageTracker: tracker } = await import('./apiUsageTracker');
+          apiUsageTracker = tracker;
+        }
+        apiUsageTracker.recordCall({
+          provider: 'alphavantage',
+          endpoint: 'GLOBAL_QUOTE',
+          symbol: symbol,
+          success: true,
+          fromCache: false,
+          cost: 1
+        });
+      }
 
       return {
         success: true,
@@ -180,15 +193,21 @@ class AlphaVantageService {
     } catch (error: any) {
       console.error(`Error fetching quote for ${symbol}:`, error.message);
       
-      // Record failed API call
-      apiUsageTracker.recordCall({
-        provider: 'alphavantage',
-        endpoint: 'GLOBAL_QUOTE',
-        symbol: symbol,
-        success: false,
-        fromCache: false,
-        cost: 1 // Still consumes API call even if failed
-      });
+      // Record failed API call - client side only
+      if (typeof window !== 'undefined') {
+        if (!apiUsageTracker) {
+          const { apiUsageTracker: tracker } = await import('./apiUsageTracker');
+          apiUsageTracker = tracker;
+        }
+        apiUsageTracker.recordCall({
+          provider: 'alphavantage',
+          endpoint: 'GLOBAL_QUOTE',
+          symbol: symbol,
+          success: false,
+          fromCache: false,
+          cost: 1 // Still consumes API call even if failed
+        });
+      }
       
       // Try to return cached data as fallback
       const cachedData = this.getCachedPrice(symbol);
