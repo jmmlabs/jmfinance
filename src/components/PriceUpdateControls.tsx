@@ -32,6 +32,7 @@ export function PriceUpdateControls({ onPricesUpdated }: PriceUpdateControlsProp
   const {
     prices,
     loading,
+    loadingSymbols,
     error,
     lastUpdate,
     refreshAll,
@@ -254,10 +255,10 @@ export function PriceUpdateControls({ onPricesUpdated }: PriceUpdateControlsProp
                       size="sm"
                       variant="ghost"
                       onClick={() => handleRefreshSymbol(status.symbol)}
-                      disabled={loading}
+                      disabled={loadingSymbols.has(status.symbol)}
                       className="h-6 w-6 p-0"
                     >
-                      <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`h-3 w-3 ${loadingSymbols.has(status.symbol) ? 'animate-spin' : ''}`} />
                     </Button>
                   </div>
                 </div>

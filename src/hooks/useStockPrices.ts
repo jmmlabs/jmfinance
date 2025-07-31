@@ -5,6 +5,7 @@ import { PriceUpdateResult } from '@/types/api';
 interface UseStockPricesResult {
   prices: Map<string, PriceUpdateResult>;
   loading: boolean;
+  loadingSymbols: Set<string>; // Track individual symbol loading states
   error: string | null;
   lastUpdate: Date | null;
   refreshAll: () => Promise<void>;
@@ -26,6 +27,7 @@ export function useStockPrices({
 }: UseStockPricesOptions): UseStockPricesResult {
   const [prices, setPrices] = useState<Map<string, PriceUpdateResult>>(new Map());
   const [loading, setLoading] = useState(false);
+  const [loadingSymbols, setLoadingSymbols] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   
@@ -101,7 +103,8 @@ export function useStockPrices({
       return;
     }
 
-    setLoading(true);
+    // Add symbol to loading set (for individual button states)
+    setLoadingSymbols(prev => new Set(prev).add(symbol));
     setError(null);
     
     try {
@@ -124,7 +127,12 @@ export function useStockPrices({
       setError(errorMessage);
       log('Single symbol refresh failed:', err);
     } finally {
-      setLoading(false);
+      // Remove symbol from loading set
+      setLoadingSymbols(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(symbol);
+        return newSet;
+      });
     }
   }, [updateSymbolPrice, log]);
 
@@ -157,33 +165,38 @@ export function useStockPrices({
       setLoading(true);
       
       try {
-        // First, try to load from cache (won't make API calls)
-        const cachedResults = await alphaVantageService.getMultipleQuotes(symbolsRef.current, false);
+        // First, try to load from cache ONLY (guaranteed no API calls)
+        const cachedResults = alphaVantageService.getCachedPricesOnly(symbolsRef.current);
         
         const newPrices = new Map<string, PriceUpdateResult>();
         cachedResults.forEach(result => {
-          newPrices.set(result.symbol, result);
+          if (result.success) {
+            newPrices.set(result.symbol, result);
+          }
         });
         
         setPrices(newPrices);
+        log(`Loaded ${newPrices.size} cached prices for ${symbolsRef.current.length} symbols`);
         
-        // Check if we have cached data for all symbols
-        const symbolsWithoutCache = symbolsRef.current.filter(symbol => {
-          const result = newPrices.get(symbol);
-          return !result || !result.fromCache;
-        });
-        
-        if (autoRefreshOnMount && symbolsWithoutCache.length > 0) {
-          log(`Auto-refreshing ${symbolsWithoutCache.length} symbols without cache`);
-          // Only refresh symbols that don't have valid cache
-          const freshResults = await alphaVantageService.getMultipleQuotes(symbolsWithoutCache, true);
-          
-          freshResults.forEach(result => {
-            newPrices.set(result.symbol, result);
+        // Only make API calls if explicitly requested via autoRefreshOnMount
+        if (autoRefreshOnMount) {
+          const symbolsWithoutCache = symbolsRef.current.filter(symbol => {
+            const result = newPrices.get(symbol);
+            return !result || !result.success;
           });
           
-          setPrices(new Map(newPrices));
-          setLastUpdate(new Date());
+          if (symbolsWithoutCache.length > 0) {
+            log(`Auto-refreshing ${symbolsWithoutCache.length} symbols without cache`);
+            // Only refresh symbols that don't have valid cache
+            const freshResults = await alphaVantageService.getMultipleQuotes(symbolsWithoutCache, true);
+            
+            freshResults.forEach(result => {
+              newPrices.set(result.symbol, result);
+            });
+            
+            setPrices(new Map(newPrices));
+            setLastUpdate(new Date());
+          }
         }
         
       } catch (err: any) {
@@ -200,6 +213,7 @@ export function useStockPrices({
   return {
     prices,
     loading,
+    loadingSymbols,
     error,
     lastUpdate,
     refreshAll,

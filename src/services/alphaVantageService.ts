@@ -232,6 +232,37 @@ class AlphaVantageService {
   }
 
   /**
+   * Get cached prices only (no API calls)
+   */
+  getCachedPricesOnly(symbols: string[]): PriceUpdateResult[] {
+    const results: PriceUpdateResult[] = [];
+    
+    for (const symbol of symbols) {
+      if (this.isCacheValid(symbol)) {
+        const cachedData = this.getCachedPrice(symbol);
+        if (cachedData) {
+          results.push({
+            success: true,
+            symbol,
+            price: cachedData.price,
+            lastUpdated: cachedData.lastUpdated,
+            fromCache: true
+          });
+        }
+      } else {
+        // Return a placeholder for symbols without cache
+        results.push({
+          success: false,
+          symbol,
+          error: 'No cached data available'
+        });
+      }
+    }
+    
+    return results;
+  }
+
+  /**
    * Fetch quotes for multiple symbols with smart batching
    */
   async getMultipleQuotes(symbols: string[], forceRefresh = false): Promise<PriceUpdateResult[]> {
