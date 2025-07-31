@@ -274,9 +274,11 @@ class ApiUsageTracker {
   }
 
   /**
-   * Save to localStorage
+   * Save to localStorage (client-side only)
    */
   private saveToStorage(): void {
+    if (typeof window === 'undefined') return; // Skip on server-side
+    
     try {
       const data = {
         apiCalls: this.apiCalls,
@@ -289,9 +291,11 @@ class ApiUsageTracker {
   }
 
   /**
-   * Load from localStorage
+   * Load from localStorage (client-side only)
    */
   private loadFromStorage(): void {
+    if (typeof window === 'undefined') return; // Skip on server-side
+    
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {

@@ -22,9 +22,9 @@ class AlphaVantageService {
   private baseUrl: string = 'https://www.alphavantage.co/query';
 
   constructor() {
-    this.apiKey = process.env.ALPHA_VANTAGE_API_KEY || '';
+    this.apiKey = process.env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY || '';
     if (!this.apiKey) {
-      console.warn('Alpha Vantage API key not found. Please set ALPHA_VANTAGE_API_KEY in .env.local');
+      console.warn('Alpha Vantage API key not found. Please set NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY in .env.local');
     }
   }
 
