@@ -371,8 +371,8 @@ export default function Dashboard() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="min-w-[200px]">Account Name</TableHead>
-                        <TableHead className="text-right min-w-[120px]">Total Balance</TableHead>
-                        <TableHead className="min-w-[150px]">Main Assets</TableHead>
+                        <TableHead className="min-w-[150px] pr-8">Main Assets</TableHead>
+                        <TableHead className="text-right min-w-[120px] pl-8">Total Balance</TableHead>
                       </TableRow>
                     </TableHeader>
                   <TableBody>
@@ -415,23 +415,23 @@ export default function Dashboard() {
                                 {summary.assetCount} asset{summary.assetCount !== 1 ? 's' : ''}
                               </div>
                             </TableCell>
-                            <TableCell className="font-semibold text-right">
-                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
-                            </TableCell>
-                            <TableCell>
+                            <TableCell className="pr-8">
                               <div title={summary.mainAssets}>
                                 {summary.mainAssets}
                               </div>
+                            </TableCell>
+                            <TableCell className="font-semibold text-right pl-8">
+                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
                             </TableCell>
                           </TableRow>
                         ));
                     })()}
                     <TableRow className="font-semibold border-t-2">
                       <TableCell>Grand Total</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="pr-8"></TableCell>
+                      <TableCell className="text-right pl-8">
                         {showValues ? formatCurrency(totalPortfolioValue) : '***'}
                       </TableCell>
-                      <TableCell></TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
