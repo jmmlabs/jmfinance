@@ -3,30 +3,40 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { TrendingDown, ExternalLink } from "lucide-react";
+import { TrendingUp, ExternalLink } from "lucide-react";
 import { formatCurrency } from "@/lib/portfolioUtils";
 
-// Mock spending data - in a real app, this would come from bank/credit card APIs
-const spendingData = [
-  { month: 'Jul', amount: 7800 },
-  { month: 'Aug', amount: 8200 },
-  { month: 'Sep', amount: 8900 },
-  { month: 'Oct', amount: 9100 },
-  { month: 'Nov', amount: 8750 },
-  { month: 'Dec', amount: 9200 },
-  { month: 'Jan', amount: 8570 },
+// Mock portfolio performance data - in a real app, this would come from historical portfolio values
+const portfolioPerformanceData = [
+  { month: 'Jul', value: 850000 },
+  { month: 'Aug', value: 870000 },
+  { month: 'Sep', value: 820000 },
+  { month: 'Oct', value: 890000 },
+  { month: 'Nov', value: 910000 },
+  { month: 'Dec', value: 925000 },
+  { month: 'Jan', value: 908000 },
 ];
 
-interface SpendingTrackerProps {
+interface PortfolioPerformanceProps {
   showValues?: boolean;
+  currentValue?: number;
 }
 
-export function SpendingTracker({ showValues = true }: SpendingTrackerProps) {
-  const currentMonth = spendingData[spendingData.length - 1];
-  const lastMonth = spendingData[spendingData.length - 2];
-  const monthlyChange = currentMonth.amount - lastMonth.amount;
-  const isUnderBudget = currentMonth.amount < 9000; // Assuming $9k budget
-  const budgetRemaining = 9000 - currentMonth.amount;
+export function SpendingTracker({ showValues = true, currentValue }: PortfolioPerformanceProps) {
+  // Use the actual current portfolio value if provided, otherwise use the mock data
+  const currentMonth = currentValue ? 
+    { ...portfolioPerformanceData[portfolioPerformanceData.length - 1], value: currentValue } :
+    portfolioPerformanceData[portfolioPerformanceData.length - 1];
+    
+  const lastMonth = portfolioPerformanceData[portfolioPerformanceData.length - 2];
+  const monthlyChange = currentMonth.value - lastMonth.value;
+  const monthlyChangePercent = (monthlyChange / lastMonth.value) * 100;
+  const isPositive = monthlyChange >= 0;
+
+  // Calculate total return from first data point
+  const firstMonth = portfolioPerformanceData[0];
+  const totalReturn = currentMonth.value - firstMonth.value;
+  const totalReturnPercent = (totalReturn / firstMonth.value) * 100;
 
   return (
     <Card className="relative">
@@ -34,42 +44,43 @@ export function SpendingTracker({ showValues = true }: SpendingTrackerProps) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <TrendingDown className="h-5 w-5" />
-              Monthly Spending
+              <TrendingUp className="h-5 w-5" />
+              Portfolio Performance
             </CardTitle>
             <CardDescription>
-              Track monthly expenses and budget performance
+              Track portfolio value growth over time
             </CardDescription>
           </div>
           <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-            <span>TRANSACTIONS</span>
+            <span>HISTORY</span>
             <ExternalLink className="h-3 w-3" />
           </button>
         </div>
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* Current month spending */}
+        {/* Current portfolio value */}
         <div className="space-y-2">
           <div className="text-3xl font-bold">
-            {showValues ? formatCurrency(currentMonth.amount) : '***'} spent
+            {showValues ? formatCurrency(currentMonth.value) : '***'} value
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>
-              {showValues ? formatCurrency(lastMonth.amount) : '***'} spent last month
+              {showValues ? formatCurrency(lastMonth.value) : '***'} last month
             </span>
             {monthlyChange !== 0 && (
-              <Badge variant={monthlyChange > 0 ? "destructive" : "default"} className="text-xs">
-                {monthlyChange > 0 ? '+' : ''}{showValues ? formatCurrency(Math.abs(monthlyChange)) : '***'}
+              <Badge variant={isPositive ? "default" : "destructive"} className="text-xs">
+                {isPositive ? '+' : ''}{showValues ? formatCurrency(Math.abs(monthlyChange)) : '***'} 
+                ({isPositive ? '+' : ''}{showValues ? monthlyChangePercent.toFixed(1) : '*'}%)
               </Badge>
             )}
           </div>
         </div>
 
-        {/* Spending trend chart */}
+        {/* Portfolio performance chart */}
         <div className="h-24 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={spendingData}>
+            <LineChart data={portfolioPerformanceData}>
               <XAxis 
                 dataKey="month" 
                 axisLine={false}
@@ -79,13 +90,13 @@ export function SpendingTracker({ showValues = true }: SpendingTrackerProps) {
               <YAxis hide />
               <Line
                 type="monotone"
-                dataKey="amount"
-                stroke={isUnderBudget ? "#22c55e" : "#ef4444"}
+                dataKey="value"
+                stroke="#22c55e"
                 strokeWidth={3}
                 dot={false}
                 activeDot={{ 
                   r: 4, 
-                  fill: isUnderBudget ? "#22c55e" : "#ef4444",
+                  fill: "#22c55e",
                   stroke: "transparent"
                 }}
               />
@@ -93,14 +104,13 @@ export function SpendingTracker({ showValues = true }: SpendingTrackerProps) {
           </ResponsiveContainer>
         </div>
 
-        {/* Budget status */}
-        {isUnderBudget && (
-          <div className="flex items-center justify-end">
-            <Badge variant="default" className="bg-green-500/10 text-green-600 border-green-500/20">
-              {showValues ? formatCurrency(budgetRemaining) : '***'} under budget
-            </Badge>
-          </div>
-        )}
+        {/* Total return status */}
+        <div className="flex items-center justify-end">
+          <Badge variant="default" className="bg-green-500/10 text-green-600 border-green-500/20">
+            {showValues ? `+${formatCurrency(totalReturn)}` : '***'} total return 
+            ({showValues ? `+${totalReturnPercent.toFixed(1)}%` : '***'})
+          </Badge>
+        </div>
       </CardContent>
     </Card>
   );

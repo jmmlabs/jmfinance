@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CombinedPriceControls } from "@/components/CombinedPriceControls";
 import { ApiUsageDashboard } from "@/components/ApiUsageDashboard";
 import { ApiStatusHeader } from "@/components/LiveDataIndicator";
-import { SpendingTracker } from "@/components/SpendingTracker";
+import { SpendingTracker as PortfolioPerformance } from "@/components/SpendingTracker";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -146,8 +146,8 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Monthly Spending Tracker */}
-          <SpendingTracker showValues={showValues} />
+          {/* Portfolio Performance Tracker */}
+          <PortfolioPerformance showValues={showValues} currentValue={totalPortfolioValue} />
         </div>
 
         {/* Key Metrics */}
