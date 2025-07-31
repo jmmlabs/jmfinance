@@ -369,16 +369,9 @@ export default function Dashboard() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>ACCOUNT NAME</TableHead>
-                      <TableHead>Sum of $ AMT</TableHead>
-                      <TableHead>PRIMARY TYPE</TableHead>
-                      <TableHead>Sum of $ AMT</TableHead>
-                      <TableHead>MAIN ASSETS</TableHead>
-                      <TableHead>Sum of $ AMT</TableHead>
-                      <TableHead>LIQUIDITY</TableHead>
-                      <TableHead>Sum of $ AMT</TableHead>
-                      <TableHead>STAGE</TableHead>
-                      <TableHead>Sum of $ AMT</TableHead>
+                      <TableHead>Account Name</TableHead>
+                      <TableHead>Total Balance</TableHead>
+                      <TableHead>Main Assets</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -396,44 +389,17 @@ export default function Dashboard() {
                       const accountSummaries = Object.entries(accountGroups).map(([accountName, assets]) => {
                         const totalAmount = assets.reduce((sum, asset) => sum + asset.amount, 0);
                         
-                        // Get primary type (the one with highest value in this account)
-                        const typeBreakdown = assets.reduce((acc, asset) => {
-                          acc[asset.type] = (acc[asset.type] || 0) + asset.amount;
-                          return acc;
-                        }, {} as Record<string, number>);
-                        const primaryType = Object.entries(typeBreakdown)
-                          .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
-
-                        // Get main assets (top 2-3 by value)
+                        // Get main assets (top 3 by value)
                         const mainAssets = assets
                           .sort((a, b) => b.amount - a.amount)
                           .slice(0, 3)
                           .map(asset => asset.actualAsset)
                           .join(', ');
 
-                        // Get dominant liquidity (the one with higher total value)
-                        const liquidityBreakdown = assets.reduce((acc, asset) => {
-                          acc[asset.liquidity] = (acc[asset.liquidity] || 0) + asset.amount;
-                          return acc;
-                        }, {} as Record<string, number>);
-                        const dominantLiquidity = Object.entries(liquidityBreakdown)
-                          .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
-
-                        // Get dominant stage
-                        const stageBreakdown = assets.reduce((acc, asset) => {
-                          acc[asset.stage] = (acc[asset.stage] || 0) + asset.amount;
-                          return acc;
-                        }, {} as Record<string, number>);
-                        const dominantStage = Object.entries(stageBreakdown)
-                          .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
-
                         return {
                           accountName,
                           totalAmount,
-                          primaryType,
                           mainAssets,
-                          dominantLiquidity,
-                          dominantStage,
                           assetCount: assets.length
                         };
                       });
@@ -448,64 +414,23 @@ export default function Dashboard() {
                                 {summary.assetCount} asset{summary.assetCount !== 1 ? 's' : ''}
                               </div>
                             </TableCell>
-                            <TableCell className="font-semibold">
+                            <TableCell className="font-semibold text-right">
                               {showValues ? formatCurrency(summary.totalAmount) : '***'}
                             </TableCell>
-                            <TableCell>{summary.primaryType}</TableCell>
                             <TableCell>
-                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
-                            </TableCell>
-                            <TableCell className="max-w-xs">
-                              <div className="truncate" title={summary.mainAssets}>
+                              <div className="truncate max-w-xs" title={summary.mainAssets}>
                                 {summary.mainAssets}
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={summary.dominantLiquidity === 'LIQUID' ? 'default' : 'secondary'}>
-                                {summary.dominantLiquidity}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={
-                                summary.dominantStage === 'UNLOCKED' ? 'default' : 
-                                summary.dominantStage === 'LOCKED' ? 'secondary' : 'outline'
-                              }>
-                                {summary.dominantStage}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
                             </TableCell>
                           </TableRow>
                         ));
                     })()}
                     <TableRow className="font-semibold border-t-2">
                       <TableCell>Grand Total</TableCell>
-                      <TableCell>
+                      <TableCell className="text-right">
                         {showValues ? formatCurrency(totalPortfolioValue) : '***'}
                       </TableCell>
                       <TableCell></TableCell>
-                      <TableCell>
-                        {showValues ? formatCurrency(totalPortfolioValue) : '***'}
-                      </TableCell>
-                      <TableCell></TableCell>
-                      <TableCell>
-                        {showValues ? formatCurrency(totalPortfolioValue) : '***'}
-                      </TableCell>
-                      <TableCell></TableCell>
-                      <TableCell>
-                        {showValues ? formatCurrency(totalPortfolioValue) : '***'}
-                      </TableCell>
-                      <TableCell></TableCell>
-                      <TableCell>
-                        {showValues ? formatCurrency(totalPortfolioValue) : '***'}
-                      </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
