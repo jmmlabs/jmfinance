@@ -19,7 +19,6 @@ interface UseApiUsageResult {
   };
   usageHistory: { date: string; calls: number }[];
   refresh: () => void;
-  resetUsage: () => void;
 }
 
 export function useApiUsage(): UseApiUsageResult {
@@ -30,10 +29,7 @@ export function useApiUsage(): UseApiUsageResult {
     setUpdateKey(prev => prev + 1);
   }, []);
 
-  const resetUsage = useCallback(() => {
-    apiUsageTracker.resetTodaysUsage();
-    refresh();
-  }, [refresh]);
+
 
   const estimateOperationCost = useCallback((operation: 'test' | 'single' | 'all') => {
     return apiUsageTracker.estimateOperationCost(operation);
@@ -69,7 +65,6 @@ export function useApiUsage(): UseApiUsageResult {
     liveIndicators,
     estimateOperationCost,
     usageHistory,
-    refresh,
-    resetUsage
+    refresh
   };
 }

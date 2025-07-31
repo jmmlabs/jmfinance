@@ -58,7 +58,7 @@ class ApiUsageTracker {
 
   constructor() {
     this.loadFromStorage();
-    this.cleanOldData();
+    this.autoResetIfNewDay();
   }
 
   /**
@@ -98,7 +98,7 @@ class ApiUsageTracker {
     const dailyLimit = API_LIMITS.alphavantage.dailyLimit;
     const remainingCallsToday = Math.max(0, dailyLimit - totalCallsToday);
 
-    // Calculate reset time (midnight tomorrow)
+    // Calculate reset time (next midnight)
     const resetTime = new Date(today);
     resetTime.setDate(resetTime.getDate() + 1);
     resetTime.setHours(0, 0, 0, 0);
@@ -312,14 +312,20 @@ class ApiUsageTracker {
   }
 
   /**
-   * Reset today's usage (for testing)
+   * Automatically clean old data and reset if new day
    */
-  resetTodaysUsage(): void {
-    const today = new Date().toDateString();
-    this.apiCalls = this.apiCalls.filter(call => 
-      !call.timestamp || new Date(call.timestamp).toDateString() !== today
-    );
-    this.saveToStorage();
+  private autoResetIfNewDay(): void {
+    // Check if we've crossed into a new day since last use
+    const lastCall = this.apiCalls[this.apiCalls.length - 1];
+    if (lastCall && lastCall.timestamp) {
+      const lastCallDate = new Date(lastCall.timestamp).toDateString();
+      const today = new Date().toDateString();
+      
+      // If it's a new day, we don't need to do anything special
+      // The getTodaysCalls() method already filters by today
+      // Just clean old data older than 7 days
+      this.cleanOldData();
+    }
   }
 
   /**

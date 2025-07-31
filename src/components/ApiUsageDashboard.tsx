@@ -30,8 +30,7 @@ export function ApiUsageDashboard({ compact = false }: ApiUsageDashboardProps) {
     liveIndicators,
     estimateOperationCost,
     usageHistory,
-    refresh,
-    resetUsage
+    refresh
   } = useApiUsage();
 
   if (!stats) {
@@ -254,18 +253,13 @@ export function ApiUsageDashboard({ compact = false }: ApiUsageDashboardProps) {
             className="flex items-center gap-2"
           >
             <RefreshCw className="h-4 w-4" />
-            Refresh
+            Refresh Stats
           </Button>
           
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={resetUsage}
-            className="flex items-center gap-2"
-          >
+          <div className="flex items-center gap-2 text-sm text-muted-foreground ml-auto">
             <Clock className="h-4 w-4" />
-            Reset Today
-          </Button>
+            Resets automatically at midnight
+          </div>
         </div>
       </CardContent>
     </Card>
