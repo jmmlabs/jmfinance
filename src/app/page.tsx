@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CombinedPriceControls } from "@/components/CombinedPriceControls";
 import { ApiUsageDashboard } from "@/components/ApiUsageDashboard";
 import { ApiStatusHeader } from "@/components/LiveDataIndicator";
+import { SpendingTracker } from "@/components/SpendingTracker";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -114,34 +115,40 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Total Portfolio Value */}
-        <Card className="border-0 bg-gradient-to-r from-primary/10 to-primary/5">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Portfolio Value</p>
-                <p className="text-4xl font-bold text-foreground">
-                  {showValues ? formatCurrency(totalPortfolioValue) : '••••••••'}
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Last updated: {portfolioData[0]?.updateDate}
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">Assets</p>
-                  <p className="text-2xl font-bold text-foreground">{portfolioData.length}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">Accounts</p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {new Set(portfolioData.map(asset => asset.accountName)).size}
+        {/* Portfolio Value and Spending Overview */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Total Portfolio Value */}
+          <Card className="border-0 bg-gradient-to-r from-primary/10 to-primary/5">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total Portfolio Value</p>
+                  <p className="text-4xl font-bold text-foreground">
+                    {showValues ? formatCurrency(totalPortfolioValue) : '••••••••'}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Last updated: {portfolioData[0]?.updateDate}
                   </p>
                 </div>
+                <div className="flex items-center gap-6 pt-2">
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">Assets</p>
+                    <p className="text-2xl font-bold text-foreground">{portfolioData.length}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">Accounts</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {new Set(portfolioData.map(asset => asset.accountName)).size}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          {/* Monthly Spending Tracker */}
+          <SpendingTracker showValues={showValues} />
+        </div>
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
