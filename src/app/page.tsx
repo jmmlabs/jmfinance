@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { PriceUpdateControls } from "@/components/PriceUpdateControls";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -20,7 +21,9 @@ import {
   Ethereum,
   BarChart3,
   Eye,
-  EyeOff
+  EyeOff,
+  RefreshCw,
+  Zap
 } from "lucide-react";
 import { 
   portfolioData, 
@@ -29,7 +32,7 @@ import {
   liquidityBreakdown, 
   stageBreakdown 
 } from "@/data/portfolio";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
 const COLORS = {
@@ -48,6 +51,12 @@ const COLORS = {
 
 export default function Dashboard() {
   const [showValues, setShowValues] = useState(true);
+  const [portfolioUpdateKey, setPortfolioUpdateKey] = useState(0);
+
+  const handlePricesUpdated = useCallback(() => {
+    // Force re-render of portfolio data when prices are updated
+    setPortfolioUpdateKey(prev => prev + 1);
+  }, []);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -194,11 +203,15 @@ export default function Dashboard() {
 
         {/* Charts and Tables */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="allocation">Allocation</TabsTrigger>
             <TabsTrigger value="liquidity">Liquidity</TabsTrigger>
             <TabsTrigger value="assets">Assets</TabsTrigger>
+            <TabsTrigger value="prices" className="flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              Prices
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -369,6 +382,10 @@ export default function Dashboard() {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="prices" className="space-y-4">
+            <PriceUpdateControls onPricesUpdated={handlePricesUpdated} />
           </TabsContent>
         </Tabs>
       </div>

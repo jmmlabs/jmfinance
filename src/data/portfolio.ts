@@ -18,6 +18,11 @@ export interface PortfolioAsset {
   address?: string;
   blockchain?: string;
   url?: string;
+  // API integration fields
+  symbol?: string; // Stock symbol for API calls (e.g., "SPY", "VTI")
+  coinId?: string; // CoinGecko ID for crypto (e.g., "bitcoin", "ethereum")
+  apiSource?: 'alphavantage' | 'coingecko' | 'manual'; // Where to get price data
+  lastApiUpdate?: Date; // When was price last updated from API
 }
 
 // Function to load portfolio data based on environment
@@ -91,7 +96,9 @@ const demoPortfolioData: PortfolioAsset[] = [
     updateDate: "1/15/2025",
     days: 10,
     status: "ACTIVE",
-    heldBy: "DEMO_BROKER"
+    heldBy: "DEMO_BROKER",
+    symbol: "SPY",
+    apiSource: "alphavantage"
   },
   {
     accountName: "DEMO BROKERAGE",
@@ -108,7 +115,9 @@ const demoPortfolioData: PortfolioAsset[] = [
     updateDate: "1/15/2025",
     days: 10,
     status: "ACTIVE",
-    heldBy: "DEMO_BROKER"
+    heldBy: "DEMO_BROKER",
+    symbol: "VTI",
+    apiSource: "alphavantage"
   },
   {
     accountName: "DEMO CRYPTO WALLET",
@@ -126,7 +135,9 @@ const demoPortfolioData: PortfolioAsset[] = [
     days: 10,
     status: "ACTIVE",
     heldBy: "DEMO_WALLET",
-    blockchain: "BTC"
+    blockchain: "BTC",
+    coinId: "bitcoin",
+    apiSource: "coingecko"
   },
   {
     accountName: "DEMO CRYPTO WALLET",
@@ -144,7 +155,9 @@ const demoPortfolioData: PortfolioAsset[] = [
     days: 10,
     status: "ACTIVE",
     heldBy: "DEMO_WALLET",
-    blockchain: "ETH"
+    blockchain: "ETH",
+    coinId: "ethereum",
+    apiSource: "coingecko"
   },
   {
     accountName: "DEMO 401K",
