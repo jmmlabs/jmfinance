@@ -367,12 +367,12 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
-                  <Table>
+                  <Table className="w-auto">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[40%]">Account Name</TableHead>
-                        <TableHead className="w-[25%] text-right">Total Balance</TableHead>
-                        <TableHead className="w-[35%]">Main Assets</TableHead>
+                        <TableHead className="min-w-[200px]">Account Name</TableHead>
+                        <TableHead className="text-right min-w-[120px]">Total Balance</TableHead>
+                        <TableHead className="min-w-[150px]">Main Assets</TableHead>
                       </TableRow>
                     </TableHeader>
                   <TableBody>
@@ -409,17 +409,17 @@ export default function Dashboard() {
                         .sort((a, b) => b.totalAmount - a.totalAmount)
                         .map((summary, index) => (
                           <TableRow key={index}>
-                            <TableCell className="font-medium w-[40%]">
+                            <TableCell className="font-medium">
                               {summary.accountName}
                               <div className="text-xs text-muted-foreground">
                                 {summary.assetCount} asset{summary.assetCount !== 1 ? 's' : ''}
                               </div>
                             </TableCell>
-                            <TableCell className="font-semibold text-right w-[25%]">
+                            <TableCell className="font-semibold text-right">
                               {showValues ? formatCurrency(summary.totalAmount) : '***'}
                             </TableCell>
-                            <TableCell className="w-[35%]">
-                              <div className="truncate" title={summary.mainAssets}>
+                            <TableCell>
+                              <div title={summary.mainAssets}>
                                 {summary.mainAssets}
                               </div>
                             </TableCell>
@@ -427,11 +427,11 @@ export default function Dashboard() {
                         ));
                     })()}
                     <TableRow className="font-semibold border-t-2">
-                      <TableCell className="w-[40%]">Grand Total</TableCell>
-                      <TableCell className="text-right w-[25%]">
+                      <TableCell>Grand Total</TableCell>
+                      <TableCell className="text-right">
                         {showValues ? formatCurrency(totalPortfolioValue) : '***'}
                       </TableCell>
-                      <TableCell className="w-[35%]"></TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
