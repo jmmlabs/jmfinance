@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { PriceUpdateControls } from "@/components/PriceUpdateControls";
+import { ApiUsageDashboard } from "@/components/ApiUsageDashboard";
+import { ApiStatusHeader } from "@/components/LiveDataIndicator";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -96,7 +98,10 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Portfolio Dashboard</h1>
-            <p className="text-muted-foreground">Your financial overview</p>
+            <div className="flex items-center gap-4">
+              <p className="text-muted-foreground">Your financial overview</p>
+              <ApiStatusHeader />
+            </div>
           </div>
           <Button
             variant="outline"
@@ -203,7 +208,7 @@ export default function Dashboard() {
 
         {/* Charts and Tables */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="allocation">Allocation</TabsTrigger>
             <TabsTrigger value="liquidity">Liquidity</TabsTrigger>
@@ -211,6 +216,10 @@ export default function Dashboard() {
             <TabsTrigger value="prices" className="flex items-center gap-2">
               <Zap className="h-4 w-4" />
               Prices
+            </TabsTrigger>
+            <TabsTrigger value="api" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              API
             </TabsTrigger>
           </TabsList>
 
@@ -386,6 +395,10 @@ export default function Dashboard() {
 
           <TabsContent value="prices" className="space-y-4">
             <PriceUpdateControls onPricesUpdated={handlePricesUpdated} />
+          </TabsContent>
+
+          <TabsContent value="api" className="space-y-4">
+            <ApiUsageDashboard />
           </TabsContent>
         </Tabs>
       </div>

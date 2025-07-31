@@ -14,8 +14,10 @@ import {
   WifiOff
 } from 'lucide-react';
 import { useStockPrices } from '@/hooks/useStockPrices';
+import { useApiUsage } from '@/hooks/useApiUsage';
 import { getStockSymbols, formatCurrency } from '@/lib/portfolioUtils';
 import { portfolioData } from '@/data/portfolio';
+import { LiveDataIndicator } from '@/components/LiveDataIndicator';
 
 interface PriceUpdateControlsProps {
   onPricesUpdated?: () => void;
@@ -42,13 +44,20 @@ export function PriceUpdateControls({ onPricesUpdated }: PriceUpdateControlsProp
     enableLogging: true
   });
 
+  const {
+    estimateOperationCost,
+    refresh: refreshApiUsage
+  } = useApiUsage();
+
   const handleRefreshAll = async () => {
     await refreshAll();
+    refreshApiUsage(); // Update API usage stats
     onPricesUpdated?.();
   };
 
   const handleRefreshSymbol = async (symbol: string) => {
     await refreshSymbol(symbol);
+    refreshApiUsage(); // Update API usage stats
     onPricesUpdated?.();
   };
 
@@ -57,6 +66,7 @@ export function PriceUpdateControls({ onPricesUpdated }: PriceUpdateControlsProp
     try {
       const isConnected = await testConnection();
       setConnectionStatus(isConnected);
+      refreshApiUsage(); // Update API usage stats
     } catch (err) {
       setConnectionStatus(false);
     } finally {
@@ -81,6 +91,13 @@ export function PriceUpdateControls({ onPricesUpdated }: PriceUpdateControlsProp
       success: priceData?.success
     };
   });
+
+  // Get operation cost estimates
+  const operationCosts = {
+    test: estimateOperationCost('test'),
+    single: estimateOperationCost('single'),
+    all: estimateOperationCost('all')
+  };
 
   return (
     <Card className="w-full">
@@ -107,12 +124,35 @@ export function PriceUpdateControls({ onPricesUpdated }: PriceUpdateControlsProp
       </CardHeader>
       
       <CardContent className="space-y-4">
+        {/* Operation Cost Preview */}
+        <div className="grid grid-cols-3 gap-2 p-3 bg-muted rounded-md">
+          <div className="text-center">
+            <div className="text-xs text-muted-foreground">Test API</div>
+            <div className="text-sm font-medium">
+              {operationCosts.test.cost} call{operationCosts.test.cost !== 1 ? 's' : ''}
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs text-muted-foreground">Single Refresh</div>
+            <div className="text-sm font-medium">
+              {operationCosts.single.cost} call{operationCosts.single.cost !== 1 ? 's' : ''}
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs text-muted-foreground">All Refresh</div>
+            <div className="text-sm font-medium">
+              {operationCosts.all.cost} call{operationCosts.all.cost !== 1 ? 's' : ''}
+            </div>
+          </div>
+        </div>
+
         {/* Main Controls */}
         <div className="flex flex-wrap gap-2">
           <Button
             onClick={handleRefreshAll}
-            disabled={loading || stockSymbols.length === 0}
+            disabled={loading || stockSymbols.length === 0 || !operationCosts.all.affordable}
             className="flex items-center gap-2"
+            variant={operationCosts.all.affordable ? "default" : "destructive"}
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh All Stocks
@@ -121,11 +161,14 @@ export function PriceUpdateControls({ onPricesUpdated }: PriceUpdateControlsProp
                 {stockSymbols.length}
               </Badge>
             )}
+            <Badge variant="outline" className="ml-1">
+              {operationCosts.all.cost}
+            </Badge>
           </Button>
 
           <Button
             onClick={handleTestConnection}
-            disabled={isTestingConnection}
+            disabled={isTestingConnection || !operationCosts.test.affordable}
             variant="outline"
             className="flex items-center gap-2"
           >
@@ -135,6 +178,9 @@ export function PriceUpdateControls({ onPricesUpdated }: PriceUpdateControlsProp
               <Wifi className="h-4 w-4" />
             )}
             Test API
+            <Badge variant="outline" className="ml-1">
+              {operationCosts.test.cost}
+            </Badge>
           </Button>
 
           <Button
@@ -190,6 +236,7 @@ export function PriceUpdateControls({ onPricesUpdated }: PriceUpdateControlsProp
                     ) : (
                       <Clock className="h-4 w-4 text-gray-400" />
                     )}
+                    <LiveDataIndicator symbol={status.symbol} />
                   </div>
                   
                   <div className="flex items-center gap-2">
