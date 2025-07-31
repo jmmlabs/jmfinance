@@ -1,336 +1,305 @@
 # 🛠️ JM Finance Dashboard - Development Guide
 
-## 🚀 Quick Start Workflow
+## 🎯 Current State (July 30, 2025)
 
-### Daily Development Process
+**✅ Phase 1 Complete**: Fully functional real-time finance dashboard with live API integration
 
-1. **Start Your Work Session**
-   ```bash
-   # Check current todos and progress
-   npm run dev  # Start development server
-   
-   # Mark task as in progress
-   node scripts/update-progress.js start "phase1-research"
-   ```
-
-2. **During Development**
-   ```bash
-   # View current tasks
-   node scripts/update-progress.js list
-   
-   # Add development notes
-   node scripts/update-progress.js note "Successfully tested Alpha Vantage API"
-   ```
-
-3. **Complete a Task**
-   ```bash
-   # Mark task as complete
-   node scripts/update-progress.js complete "phase1-research"
-   
-   # Commit your changes
-   git add .
-   git commit -m "feat: implement stock price API research and selection"
-   git push
-   ```
+### **What's Working Right Now**
+- ✅ **Live Stock Prices**: IVV and VXUS update with real market data
+- ✅ **API Usage Monitoring**: Complete tracking with 500 daily call limit
+- ✅ **Smart Controls**: Manual refresh with cost transparency
+- ✅ **Personal Portfolio**: Your actual holdings with live pricing
+- ✅ **Privacy Protection**: Personal data secured and git-ignored
 
 ---
 
-## 📁 Project Structure
+## 🚀 Daily Development Workflow
+
+### **1. Start Development Session**
+```bash
+# Navigate to project
+cd /Users/jacob/projects/jmfinance
+
+# Start development server
+npm run dev
+# ✅ App runs at http://localhost:3000 or :3001
+# ✅ Personal portfolio loads automatically
+# ✅ API key configured and working
+```
+
+### **2. Check Current Status**
+```bash
+# View dashboard in browser
+open http://localhost:3000
+
+# Monitor in header: "X/500 Good • Y Live Assets"
+# Check API tab for detailed usage analytics
+# Verify Prices tab controls are functional
+```
+
+### **3. Development Testing**
+```bash
+# Test API functionality
+# 1. Go to Prices tab
+# 2. Click "Test API" (1 call) - should work
+# 3. Click individual refresh on IVV (1 call)
+# 4. Click "Refresh All Stocks" (2 calls)
+# 5. Monitor usage in API tab
+```
+
+### **4. Commit Changes**
+```bash
+# Stage changes
+git add .
+
+# Commit with descriptive message
+git commit -m "feat: description of changes"
+
+# Push to GitHub
+git push origin main
+```
+
+---
+
+## 📁 Project Architecture
 
 ```
 jmfinance/
 ├── src/
-│   ├── app/              # Next.js app router
-│   │   ├── page.tsx      # Main dashboard
-│   │   ├── layout.tsx    # Root layout
-│   │   └── globals.css   # Global styles
-│   ├── components/       # Reusable components
-│   │   └── ui/          # shadcn/ui components
-│   ├── data/            # Data layer
-│   │   ├── portfolio.ts          # Demo data (public)
-│   │   └── portfolio.personal.ts # Personal data (git-ignored)
-│   └── lib/             # Utilities
-├── scripts/             # Development scripts
-│   └── update-progress.js # Progress tracking script
-├── ROADMAP.md          # Strategic development plan
-├── PROGRESS.md         # Current progress tracking
-└── DEV-GUIDE.md       # This file
+│   ├── app/                          # Next.js App Router
+│   │   ├── page.tsx                  # Main dashboard (6 tabs)
+│   │   ├── layout.tsx                # Root layout with dark mode
+│   │   └── globals.css               # Global styles and variables
+│   │
+│   ├── components/                   # React Components
+│   │   ├── ApiUsageDashboard.tsx     # Complete API analytics
+│   │   ├── LiveDataIndicator.tsx     # Live data status badges
+│   │   ├── PriceUpdateControls.tsx   # Manual refresh controls
+│   │   └── ui/                       # shadcn/ui base components
+│   │
+│   ├── data/                         # Data Layer
+│   │   ├── portfolio.ts              # Demo data + loading logic
+│   │   └── portfolio.personal.ts     # Your real portfolio (PRIVATE)
+│   │
+│   ├── hooks/                        # React Hooks
+│   │   ├── useStockPrices.ts         # Stock price state management
+│   │   └── useApiUsage.ts            # API usage tracking
+│   │
+│   ├── services/                     # External Services
+│   │   ├── alphaVantageService.ts    # Stock price API integration
+│   │   └── apiUsageTracker.ts        # Usage analytics + persistence
+│   │
+│   ├── types/                        # TypeScript Definitions
+│   │   └── api.ts                    # API response interfaces
+│   │
+│   └── lib/                          # Utilities
+│       └── portfolioUtils.ts         # Portfolio calculations
+│
+├── .env.local                        # API keys (PRIVATE)
+├── ROADMAP.md                        # Strategic planning
+├── PROGRESS.md                       # Development tracking
+└── README.md                         # Main documentation
 ```
 
 ---
 
-## 🔧 Development Commands
+## 🔧 Key Technical Components
 
-### Essential Commands
-```bash
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Run linting
-npm run lint
-
-# Update progress
-node scripts/update-progress.js [command] [task-id]
-```
-
-### Progress Tracking Commands
-```bash
-# List all available tasks
-node scripts/update-progress.js list
-
-# Start working on a task
-node scripts/update-progress.js start "phase1-stock-api"
-
-# Complete a task
-node scripts/update-progress.js complete "phase1-stock-api"
-
-# Add a development note
-node scripts/update-progress.js note "API integration successful"
-```
-
----
-
-## 🎯 Current Phase: Data Automation Foundation
-
-### **This Week's Focus**
-1. **API Research & Selection** (Priority 1)
-   - Compare stock price APIs
-   - Test free tier limitations
-   - Document API capabilities
-
-2. **Database Planning** (Priority 2)
-   - Design database schema
-   - Plan migration strategy
-   - Set up development environment
-
-### **Key Files to Modify**
-- `src/data/portfolio.ts` - Add API integration
-- `src/lib/` - Create API services
-- Database migration files
-- Environment configuration
-
----
-
-## 🔌 API Integration Workflow
-
-### 1. Research Phase
-```bash
-# Start the research task
-node scripts/update-progress.js start "phase1-research"
-
-# Test APIs in browser/Postman
-# Document findings in research notes
-# Make selection decision
-
-# Complete research
-node scripts/update-progress.js complete "phase1-research"
-```
-
-### 2. Implementation Phase
-```bash
-# Start implementation
-node scripts/update-progress.js start "phase1-stock-api"
-
-# Install dependencies
-npm install axios dotenv
-
-# Create API service files
-mkdir src/services
-touch src/services/stockApi.ts
-touch src/services/priceUpdater.ts
-
-# Implement and test
-# Complete implementation
-node scripts/update-progress.js complete "phase1-stock-api"
-```
-
----
-
-## 🗄️ Database Migration Workflow
-
-### Current State: Static Data
+### **1. Data Loading System**
 ```typescript
 // src/data/portfolio.ts
-export const portfolioData: PortfolioAsset[] = [...];
+function loadPortfolioData(): PortfolioAsset[] {
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      // Load your real portfolio
+      const { personalPortfolioData } = require('./portfolio.personal');
+      return personalPortfolioData;
+    } catch (error) {
+      // Fallback to demo data
+    }
+  }
+  return demoPortfolioData;
+}
 ```
 
-### Target State: Database-Driven
+### **2. API Integration**
 ```typescript
-// src/services/portfolioService.ts
-export async function getPortfolioData(userId: string): Promise<PortfolioAsset[]>
-export async function updateAssetPrice(assetId: string, price: number): Promise<void>
+// src/services/alphaVantageService.ts
+class AlphaVantageService {
+  // Real-time stock quotes with caching
+  async getQuote(symbol: string, forceRefresh = false)
+  
+  // Batch updates for multiple stocks  
+  async getMultipleQuotes(symbols: string[], forceRefresh = false)
+  
+  // Cache-only data (no API calls)
+  getCachedPricesOnly(symbols: string[])
+}
 ```
 
-### Migration Steps
-1. **Database Setup**
-   ```bash
-   node scripts/update-progress.js start "phase1-db-setup"
-   # Set up Supabase/PostgreSQL
-   # Configure connection
-   ```
+### **3. Usage Tracking**
+```typescript
+// src/services/apiUsageTracker.ts
+class ApiUsageTracker {
+  // Record every API call with cost and timestamp
+  recordCall(call: ApiCall)
+  
+  // Get today's usage stats
+  getTodaysStats(): ApiUsageStats
+  
+  // Check rate limit status
+  getRateLimitStatus()
+}
+```
 
-2. **Schema Design**
-   ```bash
-   node scripts/update-progress.js start "phase1-schema"
-   # Create tables: users, portfolios, assets, price_history
-   # Define relationships and indexes
-   ```
-
-3. **Data Migration**
-   ```bash
-   node scripts/update-progress.js start "phase1-migration"
-   # Create migration script
-   # Test with demo data
-   # Migrate personal data
-   ```
+### **4. Smart Caching**
+- **Daily Cache**: Prices cached for 24 hours
+- **Manual Override**: Force refresh bypasses cache
+- **Fallback Logic**: Show cached data on API errors
+- **Usage Optimization**: Minimize API calls while maintaining freshness
 
 ---
 
-## 🧪 Testing Strategy
+## 🎮 Dashboard Usage Guide
 
-### Manual Testing Checklist
-- [ ] Dashboard loads with demo data
-- [ ] All charts render correctly
-- [ ] Privacy toggle works
-- [ ] Responsive design on mobile
-- [ ] Dark mode styling consistent
+### **Navigation**
+- **Header**: API status always visible (e.g., "15/500 Good • 2 Live Assets")
+- **Tabs**: 6 main sections - Overview, Allocation, Liquidity, Assets, Prices, API
+- **Privacy**: Toggle button to hide/show dollar amounts
 
-### API Testing
-- [ ] API keys work in development
-- [ ] Rate limiting handled gracefully
-- [ ] Error responses handled
-- [ ] Price updates reflect in UI
+### **Prices Tab** (Main Controls)
+1. **Operation Cost Preview**: Shows API call cost before clicking
+2. **Test API**: Verify connection (1 call)
+3. **Individual Refresh**: Update specific stock (1 call each)
+4. **Refresh All Stocks**: Update all configured stocks (2 calls total)
 
-### Database Testing
-- [ ] Connection successful
-- [ ] CRUD operations work
-- [ ] Data migration successful
-- [ ] Performance acceptable
+### **API Tab** (Monitoring)
+- **Daily Usage**: Current quota usage with progress bar
+- **Rate Limits**: Per-minute tracking
+- **7-Day History**: Visual usage chart  
+- **Live Indicators**: Which assets have fresh data
+- **Operation Costs**: Estimated costs for different actions
 
----
-
-## 🔍 Debugging Tips
-
-### Common Issues
-1. **API Rate Limits**
-   ```bash
-   # Check API response headers
-   # Implement request queuing
-   # Add fallback providers
-   ```
-
-2. **Database Connection**
-   ```bash
-   # Verify environment variables
-   # Check network connectivity
-   # Review database logs
-   ```
-
-3. **UI Updates Not Reflecting**
-   ```bash
-   # Clear browser cache
-   # Check React state updates
-   # Verify data flow
-   ```
+### **Your Portfolio Configuration**
+Current assets configured for live updates:
+- **IVV**: iShares Core S&P 500 ETF
+- **VXUS**: Vanguard Total International Stock ETF
 
 ---
 
-## 📊 Performance Monitoring
+## 🔧 Development Tips
 
-### Key Metrics to Track
-- **API Response Times**: < 2 seconds
-- **Database Query Times**: < 500ms
-- **Page Load Speed**: < 3 seconds
-- **Bundle Size**: Keep under 2MB
-
-### Monitoring Tools
-- Browser DevTools Network tab
-- React DevTools Profiler
-- Database query analyzers
-- Lighthouse performance audits
-
----
-
-## 🔐 Security Considerations
-
-### API Key Management
+### **API Management**
 ```bash
-# Never commit API keys
-echo "ALPHA_VANTAGE_API_KEY=your_key" >> .env.local
-echo "COINGECKO_API_KEY=your_key" >> .env.local
+# Check current usage
+# Visit: API tab in dashboard
 
-# Use environment variables
-const apiKey = process.env.ALPHA_VANTAGE_API_KEY;
+# Monitor quota in real-time
+# Header shows: "X/500 Good/Warning/Critical"
+
+# Test without consuming quota
+# Use cached data display in Prices tab
 ```
 
-### Database Security
-- Use parameterized queries
-- Implement rate limiting
-- Enable audit logging
-- Regular security updates
-
----
-
-## 🎨 UI Development Guidelines
-
-### Design Principles
-- **Dark Mode First**: Optimize for dark theme
-- **Mobile Responsive**: Design for mobile, enhance for desktop
-- **Financial Clarity**: Numbers should be easily readable
-- **Privacy Aware**: Easy to hide sensitive data
-
-### Component Usage
-```typescript
-// Use existing shadcn/ui components
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-
-// Maintain consistent styling
-className="flex items-center gap-2 text-muted-foreground"
-```
-
----
-
-## 📝 Documentation Standards
-
-### Code Comments
-```typescript
-/**
- * Updates asset prices from external API
- * @param assets Array of assets to update
- * @returns Promise resolving to updated assets
- */
-async function updateAssetPrices(assets: PortfolioAsset[]): Promise<PortfolioAsset[]>
-```
-
-### Commit Messages
+### **Debugging**
 ```bash
-# Format: type(scope): description
-feat(api): add Alpha Vantage stock price integration
-fix(ui): resolve mobile responsive chart overflow
-docs(readme): update API setup instructions
+# Check browser console for API logs
+# Look for: "[API Tracker]" and "[useStockPrices]" messages
+
+# Verify environment variables
+cat .env.local  # Should show your API key
+
+# Check data loading
+# Console shows: "Personal portfolio data not found, using demo data" OR loads personal
 ```
 
----
-
-## 🔄 Release Process
-
-### Development Flow
-1. Work on feature branch
-2. Test locally with development data
-3. Update progress tracking
-4. Create pull request
-5. Merge to main
-6. Deploy to production
-
-### Version Management
-- **Major**: Breaking changes (1.0.0 → 2.0.0)
-- **Minor**: New features (1.0.0 → 1.1.0)
-- **Patch**: Bug fixes (1.0.0 → 1.0.1)
+### **Performance**
+- **Individual Loading States**: Each stock button has its own spinner
+- **Cache-First Loading**: Tab visits load cached data only
+- **Smart Batching**: Multiple stock updates use delay between calls
+- **Error Recovery**: Graceful fallbacks to cached data
 
 ---
 
-*Happy coding! 🚀*
+## 🎯 Next Development Session
+
+### **Ready to Implement** 
+1. **CoinGecko Crypto Integration**
+   - Add BTC and ETH price tracking
+   - Extend API usage monitoring
+   - Configure crypto assets in personal portfolio
+
+2. **Database Migration Planning**
+   - Research Supabase vs PostgreSQL + Prisma
+   - Design schema for assets and price history
+   - Plan migration from static files
+
+3. **Performance Analytics**
+   - Calculate daily/monthly returns
+   - Implement portfolio performance tracking
+   - Add risk metrics and correlation analysis
+
+### **Development Environment Ready**
+✅ **Next.js 14**: App Router with TypeScript  
+✅ **API Integration**: Alpha Vantage working (500 calls/day)  
+✅ **UI Framework**: shadcn/ui with Tailwind CSS  
+✅ **Data Visualization**: Recharts for portfolio charts  
+✅ **State Management**: React hooks with localStorage  
+✅ **Privacy**: Personal data protected and functional  
+
+---
+
+## 🚨 Important Notes
+
+### **API Key Security**
+- **Never commit** `.env.local` to git (already in .gitignore)
+- **API key is working**: `NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY=1D6MJ3TSL6R6O23E`
+- **Free tier limit**: 500 calls per day
+
+### **Personal Data Privacy**
+- **portfolio.personal.ts**: Contains your real financial data (git-ignored)
+- **Development mode**: Automatically loads your personal portfolio
+- **Production mode**: Uses demo data for public viewing
+
+### **Current API Usage Strategy**
+- **Daily Caching**: Prevents duplicate calls for same day
+- **Manual Controls**: Only explicit user actions trigger API calls
+- **Cost Transparency**: Show exact call cost before operations
+- **Smart Fallbacks**: Cached data shown on API failures
+
+---
+
+## 📝 Quick Reference
+
+### **Common Commands**
+```bash
+# Start development
+npm run dev
+
+# Build for production  
+npm run build
+
+# Type checking
+npx tsc --noEmit
+
+# Git workflow
+git add .
+git commit -m "message"
+git push
+```
+
+### **Key URLs**
+- **Local Dashboard**: http://localhost:3000 or :3001
+- **GitHub Repo**: https://github.com/jmmlabs/jmfinance
+- **Alpha Vantage Docs**: https://www.alphavantage.co/documentation/
+
+### **File Locations**
+- **Personal Portfolio**: `src/data/portfolio.personal.ts`
+- **API Key**: `.env.local`
+- **Main Dashboard**: `src/app/page.tsx`
+- **Price Controls**: `src/components/PriceUpdateControls.tsx`
+
+---
+
+🎯 **Status**: Phase 1 Complete - Ready for Phase 2 development!  
+🚀 **Next Goal**: CoinGecko crypto integration and database migration planning
