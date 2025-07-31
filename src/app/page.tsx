@@ -366,14 +366,15 @@ export default function Dashboard() {
                 <CardDescription>Total holdings grouped by account with allocation percentages</CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Account Name</TableHead>
-                      <TableHead className="text-right">Total Balance</TableHead>
-                      <TableHead>Main Assets</TableHead>
-                    </TableRow>
-                  </TableHeader>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[40%]">Account Name</TableHead>
+                        <TableHead className="w-[25%] text-right">Total Balance</TableHead>
+                        <TableHead className="w-[35%]">Main Assets</TableHead>
+                      </TableRow>
+                    </TableHeader>
                   <TableBody>
                     {(() => {
                       // Group assets by account name
@@ -408,17 +409,17 @@ export default function Dashboard() {
                         .sort((a, b) => b.totalAmount - a.totalAmount)
                         .map((summary, index) => (
                           <TableRow key={index}>
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium w-[40%]">
                               {summary.accountName}
                               <div className="text-xs text-muted-foreground">
                                 {summary.assetCount} asset{summary.assetCount !== 1 ? 's' : ''}
                               </div>
                             </TableCell>
-                            <TableCell className="font-semibold text-right">
+                            <TableCell className="font-semibold text-right w-[25%]">
                               {showValues ? formatCurrency(summary.totalAmount) : '***'}
                             </TableCell>
-                            <TableCell>
-                              <div className="truncate max-w-xs" title={summary.mainAssets}>
+                            <TableCell className="w-[35%]">
+                              <div className="truncate" title={summary.mainAssets}>
                                 {summary.mainAssets}
                               </div>
                             </TableCell>
@@ -426,14 +427,15 @@ export default function Dashboard() {
                         ));
                     })()}
                     <TableRow className="font-semibold border-t-2">
-                      <TableCell>Grand Total</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="w-[40%]">Grand Total</TableCell>
+                      <TableCell className="text-right w-[25%]">
                         {showValues ? formatCurrency(totalPortfolioValue) : '***'}
                       </TableCell>
-                      <TableCell></TableCell>
+                      <TableCell className="w-[35%]"></TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
