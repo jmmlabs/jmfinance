@@ -74,3 +74,61 @@ export interface ApiError {
   message: string;
   details?: string;
 }
+
+// API Provider types
+export type ApiProvider = 'alphavantage' | 'coingecko';
+export type ApiEndpoint = 
+  | 'alphavantage_quote' 
+  | 'alphavantage_timeseries'
+  | 'coingecko_simple_price'
+  | 'coingecko_coin_data'
+  | 'coingecko_wallet_tokens';
+
+// CoinGecko API Response Types
+export interface CoinGeckoSimplePriceResponse {
+  [coinId: string]: {
+    usd: number;
+    usd_24h_change?: number;
+    last_updated_at?: number;
+  };
+}
+
+export interface CoinGeckoCoinDataResponse {
+  id: string;
+  symbol: string;
+  name: string;
+  market_data: {
+    current_price: {
+      usd: number;
+    };
+    price_change_percentage_24h: number;
+    last_updated: string;
+  };
+}
+
+export interface ProcessedCryptoPrice {
+  coinId: string;
+  symbol: string;
+  name?: string;
+  price: number;
+  change24h?: number;
+  lastUpdated: Date;
+}
+
+// Crypto price update result
+export interface CryptoPriceUpdateResult {
+  success: boolean;
+  coinId: string;
+  symbol: string;
+  price?: number;
+  error?: string;
+  lastUpdated?: Date;
+  fromCache?: boolean;
+}
+
+// Cache entry for crypto price data
+export interface CryptoPriceCacheEntry {
+  data: ProcessedCryptoPrice;
+  cachedAt: Date;
+  expiresAt: Date;
+}

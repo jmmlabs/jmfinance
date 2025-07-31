@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { PriceUpdateControls } from "@/components/PriceUpdateControls";
+import { CombinedPriceControls } from "@/components/CombinedPriceControls";
 import { ApiUsageDashboard } from "@/components/ApiUsageDashboard";
 import { ApiStatusHeader } from "@/components/LiveDataIndicator";
 import { 
@@ -543,7 +543,7 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="prices" className="space-y-4">
-            <PriceUpdateControls onPricesUpdated={handlePricesUpdated} />
+            <CombinedPriceControls onPricesUpdated={handlePricesUpdated} />
           </TabsContent>
 
           <TabsContent value="api" className="space-y-4">
