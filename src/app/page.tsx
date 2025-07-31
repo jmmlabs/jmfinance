@@ -370,7 +370,7 @@ export default function Dashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Account Name</TableHead>
-                      <TableHead>Total Balance</TableHead>
+                      <TableHead className="text-right">Total Balance</TableHead>
                       <TableHead>Main Assets</TableHead>
                     </TableRow>
                   </TableHeader>
