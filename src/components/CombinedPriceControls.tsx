@@ -41,12 +41,14 @@ export function CombinedPriceControls({ onPricesUpdated }: CombinedPriceControls
     loading: stockLoading,
     loadingSymbols: loadingStockSymbols,
     error: stockError,
-    lastRefresh: stockLastRefresh,
-    priceStatuses: stockStatuses,
-    refreshPrice: refreshStockPrice,
-    refreshAllPrices: refreshAllStockPrices,
+    lastUpdate: stockLastRefresh,
+    refreshAll: refreshAllStockPrices,
+    refreshSymbol: refreshStockPrice,
     testConnection: testStockConnection
-  } = useStockPrices(stockSymbols, { autoRefreshOnMount: false });
+  } = useStockPrices({
+    symbols: stockSymbols,
+    autoRefreshOnMount: false
+  });
 
   const {
     prices: cryptoPrices,
@@ -65,8 +67,21 @@ export function CombinedPriceControls({ onPricesUpdated }: CombinedPriceControls
     refresh: refreshApiUsage
   } = useApiUsage();
 
+  // Generate stock statuses from the prices map
+  const stockStatuses = stockSymbols.map(symbol => {
+    const priceData = stockPrices.get(symbol);
+    return {
+      symbol,
+      price: priceData?.price || null,
+      lastUpdated: priceData?.lastUpdated || null,
+      fromCache: priceData?.fromCache || false,
+      hasError: !priceData?.success,
+      error: priceData?.error,
+    };
+  });
+
   const handleRefreshAllStocks = async () => {
-    await refreshAllStockPrices(stockSymbols);
+    await refreshAllStockPrices();
     refreshApiUsage();
     onPricesUpdated?.();
   };
@@ -79,7 +94,7 @@ export function CombinedPriceControls({ onPricesUpdated }: CombinedPriceControls
 
   const handleRefreshAllAssets = async () => {
     await Promise.all([
-      refreshAllStockPrices(stockSymbols),
+      refreshAllStockPrices(),
       refreshAllCryptoPrices(cryptoCoinIds)
     ]);
     refreshApiUsage();
@@ -101,8 +116,8 @@ export function CombinedPriceControls({ onPricesUpdated }: CombinedPriceControls
   const handleTestStockConnection = async () => {
     setIsTestingStockConnection(true);
     try {
-      await testStockConnection();
-      setStockConnectionStatus(true);
+      const isConnected = await testStockConnection();
+      setStockConnectionStatus(isConnected);
       refreshApiUsage();
     } catch (err) {
       setStockConnectionStatus(false);
