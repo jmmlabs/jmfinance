@@ -223,27 +223,28 @@ export default function Dashboard() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PieChart className="h-5 w-5" />
-                    Asset Type Breakdown
-                  </CardTitle>
+          <TabsContent value="overview" className="space-y-6">
+            {/* Comprehensive Dashboard Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+              
+              {/* Asset Type Breakdown */}
+              <Card className="xl:col-span-1">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">'$ AMT' by 'TYPE'</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-80">
+                  <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsPieChart>
                         <Pie
                           data={assetTypeData}
                           cx="50%"
                           cy="50%"
-                          outerRadius={80}
+                          outerRadius={60}
                           fill="#8884d8"
                           dataKey="value"
-                          label={({ name, percentage }) => `${name} ${percentage.toFixed(1)}%`}
+                          label={({ name, percentage }) => `${name}\n${percentage.toFixed(0)}%`}
+                          labelLine={false}
                         >
                           {assetTypeData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#8884d8'} />
@@ -256,39 +257,260 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Liquidity vs Illiquidity
-                  </CardTitle>
+              {/* Underlying Asset Breakdown */}
+              <Card className="xl:col-span-1">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">'% OF TOTAL' by 'UNDERLYING ASSET'</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Liquid Assets</span>
-                        <span>{formatCurrency(liquidityBreakdown.LIQUID || 0)}</span>
-                      </div>
-                      <Progress 
-                        value={((liquidityBreakdown.LIQUID || 0) / totalPortfolioValue) * 100} 
-                        className="h-2"
-                      />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Illiquid Assets</span>
-                        <span>{formatCurrency(liquidityBreakdown.ILLIQUID || 0)}</span>
-                      </div>
-                      <Progress 
-                        value={((liquidityBreakdown.ILLIQUID || 0) / totalPortfolioValue) * 100} 
-                        className="h-2"
-                      />
-                    </div>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={portfolioData.map(asset => ({
+                            name: asset.underlyingAsset.length > 15 ? 
+                              asset.underlyingAsset.substring(0, 15) + '...' : 
+                              asset.underlyingAsset,
+                            value: asset.amount,
+                            percentage: asset.percentageOfTotal
+                          })).filter(item => item.value > 1000)} // Only show significant holdings
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={60}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percentage }) => `${percentage.toFixed(0)}%`}
+                          labelLine={false}
+                        >
+                          {portfolioData.map((entry, index) => (
+                            <Cell key={`underlying-${index}`} fill={COLORS[Object.keys(COLORS)[index % Object.keys(COLORS).length] as keyof typeof COLORS]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Liquidity Breakdown */}
+              <Card className="xl:col-span-1">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">'$ AMT' by 'LIQUIDITY'</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={[
+                            { name: 'LIQUID', value: liquidityBreakdown.LIQUID || 0 },
+                            { name: 'ILLIQUID', value: liquidityBreakdown.ILLIQUID || 0 }
+                          ]}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={60}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, value }) => `${name}\n${((value / totalPortfolioValue) * 100).toFixed(0)}%`}
+                          labelLine={false}
+                        >
+                          <Cell fill="#3b82f6" />
+                          <Cell fill="#f97316" />
+                        </Pie>
+                        <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Stage Breakdown */}
+              <Card className="xl:col-span-1">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">'$ AMT' by 'STAGE'</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={Object.entries(stageBreakdown).map(([stage, value]) => ({
+                            name: stage,
+                            value: value || 0
+                          }))}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={60}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, value }) => `${name}\n${((value / totalPortfolioValue) * 100).toFixed(0)}%`}
+                          labelLine={false}
+                        >
+                          <Cell fill="#3b82f6" />
+                          <Cell fill="#22c55e" />
+                          <Cell fill="#f97316" />
+                        </Pie>
+                        <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Account Summary Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Summary</CardTitle>
+                <CardDescription>Total holdings grouped by account with allocation percentages</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ACCOUNT NAME</TableHead>
+                      <TableHead>Sum of $ AMT</TableHead>
+                      <TableHead>PRIMARY TYPE</TableHead>
+                      <TableHead>Sum of $ AMT</TableHead>
+                      <TableHead>MAIN ASSETS</TableHead>
+                      <TableHead>Sum of $ AMT</TableHead>
+                      <TableHead>LIQUIDITY</TableHead>
+                      <TableHead>Sum of $ AMT</TableHead>
+                      <TableHead>STAGE</TableHead>
+                      <TableHead>Sum of $ AMT</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {(() => {
+                      // Group assets by account name
+                      const accountGroups = portfolioData.reduce((acc, asset) => {
+                        if (!acc[asset.accountName]) {
+                          acc[asset.accountName] = [];
+                        }
+                        acc[asset.accountName].push(asset);
+                        return acc;
+                      }, {} as Record<string, typeof portfolioData>);
+
+                      // Create summary for each account
+                      const accountSummaries = Object.entries(accountGroups).map(([accountName, assets]) => {
+                        const totalAmount = assets.reduce((sum, asset) => sum + asset.amount, 0);
+                        
+                        // Get primary type (the one with highest value in this account)
+                        const typeBreakdown = assets.reduce((acc, asset) => {
+                          acc[asset.type] = (acc[asset.type] || 0) + asset.amount;
+                          return acc;
+                        }, {} as Record<string, number>);
+                        const primaryType = Object.entries(typeBreakdown)
+                          .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
+
+                        // Get main assets (top 2-3 by value)
+                        const mainAssets = assets
+                          .sort((a, b) => b.amount - a.amount)
+                          .slice(0, 3)
+                          .map(asset => asset.actualAsset)
+                          .join(', ');
+
+                        // Get dominant liquidity (the one with higher total value)
+                        const liquidityBreakdown = assets.reduce((acc, asset) => {
+                          acc[asset.liquidity] = (acc[asset.liquidity] || 0) + asset.amount;
+                          return acc;
+                        }, {} as Record<string, number>);
+                        const dominantLiquidity = Object.entries(liquidityBreakdown)
+                          .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
+
+                        // Get dominant stage
+                        const stageBreakdown = assets.reduce((acc, asset) => {
+                          acc[asset.stage] = (acc[asset.stage] || 0) + asset.amount;
+                          return acc;
+                        }, {} as Record<string, number>);
+                        const dominantStage = Object.entries(stageBreakdown)
+                          .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
+
+                        return {
+                          accountName,
+                          totalAmount,
+                          primaryType,
+                          mainAssets,
+                          dominantLiquidity,
+                          dominantStage,
+                          assetCount: assets.length
+                        };
+                      });
+
+                      return accountSummaries
+                        .sort((a, b) => b.totalAmount - a.totalAmount)
+                        .map((summary, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">
+                              {summary.accountName}
+                              <div className="text-xs text-muted-foreground">
+                                {summary.assetCount} asset{summary.assetCount !== 1 ? 's' : ''}
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-semibold">
+                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
+                            </TableCell>
+                            <TableCell>{summary.primaryType}</TableCell>
+                            <TableCell>
+                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
+                            </TableCell>
+                            <TableCell className="max-w-xs">
+                              <div className="truncate" title={summary.mainAssets}>
+                                {summary.mainAssets}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={summary.dominantLiquidity === 'LIQUID' ? 'default' : 'secondary'}>
+                                {summary.dominantLiquidity}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={
+                                summary.dominantStage === 'UNLOCKED' ? 'default' : 
+                                summary.dominantStage === 'LOCKED' ? 'secondary' : 'outline'
+                              }>
+                                {summary.dominantStage}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {showValues ? formatCurrency(summary.totalAmount) : '***'}
+                            </TableCell>
+                          </TableRow>
+                        ));
+                    })()}
+                    <TableRow className="font-semibold border-t-2">
+                      <TableCell>Grand Total</TableCell>
+                      <TableCell>
+                        {showValues ? formatCurrency(totalPortfolioValue) : '***'}
+                      </TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>
+                        {showValues ? formatCurrency(totalPortfolioValue) : '***'}
+                      </TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>
+                        {showValues ? formatCurrency(totalPortfolioValue) : '***'}
+                      </TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>
+                        {showValues ? formatCurrency(totalPortfolioValue) : '***'}
+                      </TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>
+                        {showValues ? formatCurrency(totalPortfolioValue) : '***'}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="allocation" className="space-y-4">
